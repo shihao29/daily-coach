@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: "朝夕",
   webDir: "capacitor-web",
   server: {
-    url: "https://daily-coach.swathe-aerie8m.chatgpt.site",
+    url: "https://daily-coach-ptvi2ebd.edgeone.cool",
     cleartext: false,
   },
   plugins: {

@@ -1,0 +1,7 @@
+{
+  "name": "daily-coach",
+  "buildCommand": "npm run build:edgeone",
+  "installCommand": "npm ci",
+  "outputDirectory": ".next",
+  "nodeVersion": "22.17.1"
+}

@@ -41,3 +41,8 @@ next-env.d.ts
 /outputs/
 /work/
 /tsconfig.tsbuildinfo
+
+# Tencent Cloud EdgeOne
+.env
+.edgeone/*
+.tef_dist/*
