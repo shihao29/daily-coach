@@ -1,0 +1,729 @@
+@import "tailwindcss";
+
+:root {
+  --cream: #f4efe5;
+  --paper: #fffdf8;
+  --paper-soft: #faf6ed;
+  --ink: #2b2926;
+  --muted: #7a746b;
+  --line: #e5ddd0;
+  --accent: #a8754f;
+  --accent-dark: #765039;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--cream);
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 8% 8%, rgba(255, 255, 255, 0.88), transparent 30rem),
+    var(--cream);
+  color: var(--ink);
+  font-family: var(--font-geist), "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.site-shell {
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: minmax(0, 46rem) minmax(19rem, 25rem);
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.app-panel,
+.install-panel {
+  border: 1px solid rgba(80, 66, 50, 0.1);
+  box-shadow: 0 1.5rem 5rem rgba(64, 51, 37, 0.08);
+}
+
+.app-panel {
+  min-height: calc(100svh - 3rem);
+  background: var(--paper);
+  border-radius: 1.75rem;
+  overflow: hidden;
+}
+
+.topbar {
+  height: 5.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  padding: 0 2.25rem;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--ink);
+  font-family: "Noto Serif SC", "Songti SC", serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+}
+
+.brand-mark {
+  width: 2.15rem;
+  height: 2.15rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.8rem;
+  letter-spacing: 0;
+}
+
+.download-link {
+  color: var(--accent-dark);
+  font-size: 0.8rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-underline-offset: 0.2rem;
+}
+
+.today-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 3.75rem 3.5rem 2.25rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.65rem;
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 720;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1,
+h2 {
+  font-family: "Noto Serif SC", "Songti SC", serif;
+}
+
+h1 {
+  max-width: 30rem;
+  margin-bottom: 0.9rem;
+  font-size: clamp(2.15rem, 5vw, 3.65rem);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  line-height: 1.17;
+}
+
+.intro {
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.progress-ring {
+  --progress: 0deg;
+  width: 7.4rem;
+  aspect-ratio: 1;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: conic-gradient(var(--accent) var(--progress), #eee6da 0);
+  position: relative;
+}
+
+.progress-ring::after {
+  content: "";
+  position: absolute;
+  inset: 0.55rem;
+  border-radius: inherit;
+  background: var(--paper);
+}
+
+.progress-ring span {
+  position: relative;
+  z-index: 1;
+  font-family: "Noto Serif SC", "Songti SC", serif;
+  font-size: 1.35rem;
+}
+
+.coach-note {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.25rem;
+  align-items: baseline;
+  margin: 0 3.5rem 3.5rem;
+  border-left: 2px solid var(--accent);
+  padding: 0.15rem 0 0.15rem 1.15rem;
+}
+
+.coach-label {
+  color: var(--accent-dark);
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.coach-note p {
+  margin: 0;
+  color: #5c564f;
+  font-family: "Noto Serif SC", "Songti SC", serif;
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.habit-section {
+  border-top: 1px solid var(--line);
+  padding: 3rem 3.5rem 2.5rem;
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.65rem;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 540;
+  letter-spacing: -0.035em;
+}
+
+.add-button {
+  border: 0;
+  border-bottom: 1px solid #cdbda9;
+  background: transparent;
+  color: var(--accent-dark);
+  cursor: pointer;
+  padding: 0.35rem 0;
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.habit-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.habit-card {
+  display: grid;
+  grid-template-columns: 3rem 1fr;
+  gap: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 1.15rem;
+  transition: border-color 180ms ease, background 180ms ease;
+}
+
+.habit-card.is-complete {
+  border-color: #d4c5b4;
+  background: #f8f2e8;
+}
+
+.habit-icon {
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #5c4a3c;
+  font-family: "Noto Serif SC", "Songti SC", serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.tone-sand { background: #eee1cb; }
+.tone-clay { background: #ead9cd; }
+.tone-stone { background: #e6e1d8; }
+
+.habit-copy {
+  min-width: 0;
+}
+
+.habit-title-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+}
+
+.habit-title-row h3 {
+  margin-bottom: 0.55rem;
+  font-size: 0.97rem;
+  font-weight: 640;
+}
+
+.habit-title-row span {
+  color: var(--muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.mini-progress {
+  height: 2px;
+  overflow: hidden;
+  background: #e9e2d7;
+}
+
+.mini-progress span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width 260ms ease;
+}
+
+.habit-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.85rem;
+}
+
+.reminder-button,
+.undo-button,
+.check-button {
+  border: 0;
+  cursor: pointer;
+}
+
+.reminder-button {
+  background: transparent;
+  color: var(--muted);
+  padding: 0;
+  font-size: 0.72rem;
+}
+
+.reminder-button.is-on {
+  color: var(--accent-dark);
+}
+
+.count-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.undo-button {
+  width: 1.85rem;
+  height: 1.85rem;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--muted);
+}
+
+.check-button {
+  min-width: 5.2rem;
+  border-radius: 999px;
+  background: var(--ink);
+  color: white;
+  padding: 0.52rem 0.9rem;
+  font-size: 0.76rem;
+  font-weight: 650;
+}
+
+.check-button:disabled {
+  background: #e4d8c9;
+  color: #765f4d;
+  cursor: default;
+}
+
+.summary-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  margin: 0 3.5rem;
+  padding: 1.5rem 0;
+}
+
+.summary-strip div {
+  display: grid;
+  gap: 0.3rem;
+  text-align: center;
+}
+
+.summary-strip div + div {
+  border-left: 1px solid var(--line);
+}
+
+.summary-strip strong {
+  font-family: "Noto Serif SC", "Songti SC", serif;
+  font-size: 1.3rem;
+  font-weight: 500;
+}
+
+.summary-strip span {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.app-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem 3.5rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.app-footer p {
+  margin: 0;
+}
+
+.app-footer a {
+  color: var(--accent-dark);
+  text-underline-offset: 0.2rem;
+}
+
+.install-panel {
+  min-height: calc(100svh - 3rem);
+  align-self: start;
+  position: sticky;
+  top: 1.5rem;
+  border-radius: 1.75rem;
+  background: #2d2a27;
+  color: #f6f0e6;
+  padding: 4.5rem 2.5rem 2.5rem;
+}
+
+.install-kicker {
+  color: #c9ab8e;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+}
+
+.install-panel h2 {
+  max-width: 15rem;
+  margin: 1.5rem 0 1rem;
+  font-size: 2.55rem;
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 1.2;
+}
+
+.install-panel > p {
+  color: #c8c0b5;
+  font-size: 0.86rem;
+  line-height: 1.8;
+}
+
+.apk-button {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 2.25rem 0;
+  border-radius: 0.9rem;
+  background: #f5eee3;
+  color: #2d2a27;
+  padding: 1rem 1.1rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.apk-button span {
+  color: #85786d;
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+
+.install-panel ol {
+  display: grid;
+  gap: 1.15rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #d8d0c6;
+  font-size: 0.77rem;
+}
+
+.install-panel li {
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.install-panel li span {
+  color: #a89889;
+  font-family: serif;
+  font-size: 0.72rem;
+}
+
+.install-panel .install-note {
+  margin-top: 2.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-top: 1.2rem;
+  color: #9f958c;
+  font-size: 0.68rem;
+  line-height: 1.7;
+}
+
+.modal-backdrop {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(37, 33, 29, 0.48);
+  padding: 1rem;
+}
+
+.add-sheet {
+  width: min(100%, 28rem);
+  border-radius: 1.3rem;
+  background: var(--paper);
+  box-shadow: 0 2rem 6rem rgba(30, 25, 20, 0.25);
+  padding: 2rem;
+}
+
+.sheet-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.6rem;
+}
+
+.sheet-heading h2 {
+  margin-bottom: 0;
+  font-size: 1.45rem;
+  font-weight: 540;
+}
+
+.close-button {
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1.5rem;
+}
+
+.add-sheet form,
+.add-sheet label {
+  display: grid;
+}
+
+.add-sheet form {
+  gap: 1rem;
+}
+
+.add-sheet label {
+  gap: 0.45rem;
+  color: #665f57;
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.add-sheet input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  background: white;
+  color: var(--ink);
+  padding: 0.78rem 0.85rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+
+.submit-button {
+  border: 0;
+  border-radius: 0.75rem;
+  background: var(--ink);
+  color: white;
+  cursor: pointer;
+  margin-top: 0.4rem;
+  padding: 0.85rem 1rem;
+  font-weight: 700;
+}
+
+.toast {
+  position: fixed;
+  z-index: 30;
+  left: 50%;
+  bottom: max(1.5rem, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  border-radius: 999px;
+  background: #2d2a27;
+  color: white;
+  box-shadow: 0 0.8rem 2.5rem rgba(24, 20, 17, 0.22);
+  padding: 0.75rem 1rem;
+  font-size: 0.76rem;
+  text-align: center;
+}
+
+@media (max-width: 860px) {
+  .site-shell {
+    display: block;
+    padding: 0;
+  }
+
+  .app-panel {
+    min-height: 100svh;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .install-panel {
+    min-height: auto;
+    position: static;
+    border: 0;
+    border-radius: 0;
+    padding: 3.5rem 2rem;
+  }
+
+  .install-panel h2 {
+    max-width: 18rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .topbar {
+    height: 4.6rem;
+    padding: 0 1.25rem;
+  }
+
+  .today-heading {
+    align-items: flex-end;
+    padding: 2.6rem 1.25rem 1.8rem;
+  }
+
+  h1 {
+    max-width: 15rem;
+    font-size: 2.35rem;
+  }
+
+  .intro {
+    max-width: 14rem;
+    font-size: 0.82rem;
+    line-height: 1.65;
+  }
+
+  .progress-ring {
+    width: 5.2rem;
+  }
+
+  .progress-ring span {
+    font-size: 1rem;
+  }
+
+  .coach-note {
+    display: block;
+    margin: 0 1.25rem 2.5rem;
+  }
+
+  .coach-note p {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .habit-section {
+    padding: 2.4rem 1.25rem 2rem;
+  }
+
+  .section-heading h2 {
+    font-size: 1.3rem;
+  }
+
+  .habit-card {
+    grid-template-columns: 2.6rem 1fr;
+    gap: 0.8rem;
+    padding: 1rem;
+  }
+
+  .habit-icon {
+    width: 2.6rem;
+    height: 2.6rem;
+  }
+
+  .habit-actions {
+    align-items: flex-end;
+    gap: 0.65rem;
+  }
+
+  .reminder-button {
+    max-width: 7.5rem;
+    text-align: left;
+    line-height: 1.45;
+  }
+
+  .check-button {
+    min-width: 4.8rem;
+  }
+
+  .summary-strip {
+    margin: 0 1.25rem;
+  }
+
+  .summary-strip span {
+    font-size: 0.62rem;
+  }
+
+  .app-footer {
+    padding: 1.7rem 1.25rem 2rem;
+  }
+
+  .add-sheet {
+    align-self: end;
+    border-radius: 1.35rem 1.35rem 0 0;
+    margin: -1rem;
+    padding: 1.5rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
