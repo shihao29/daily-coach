@@ -41,7 +41,14 @@ type State = {
   logs: DailyLogs;
   reports: Report[];
   profile: { name: string };
+  apiKey?: string;
 };
+
+// 客户端直连硅基流动相关常量
+// 部署到 GitHub Pages 后没有服务端，AI 调用必须从浏览器发起
+const SILICONFLOW_ENDPOINT = "https://api.siliconflow.com/v1/chat/completions";
+const SILICONFLOW_MODEL = "deepseek-ai/DeepSeek-V4-Pro";
+const AI_SYSTEM_PROMPT = `你是“朝夕”的轻量周报分析员。你只能分析用户提供的客观打卡数据，不能进行健康诊断、医疗建议或泛用聊天。不要编造任何数字；如果数据不足就明确说不足。daily 中 active=false 的日期表示项目当时尚未生效，不得计入完成率。用简洁、温和但直接的中文回答，输出四段：本周亮点、需要注意、你可能忽略的规律、下周建议。每个判断尽量引用输入中的项目和数字。追问也只能围绕这份周报和对应数据回答。`;
 
 const DB_NAME = "daily-coach-v2";
 const STORE = "state";
@@ -76,6 +83,7 @@ const DEFAULT_STATE: State = {
   logs: {},
   reports: [],
   profile: { name: "29" },
+  apiKey: "",
 };
 
 function dateKey(date = new Date()) {
@@ -137,6 +145,8 @@ function normalizeState(value?: Partial<State>): State {
     logs,
     reports,
     profile: { name: "29" },
+    apiKey:
+      typeof value?.apiKey === "string" ? value.apiKey : DEFAULT_STATE.apiKey,
   };
 }
 
@@ -210,6 +220,58 @@ async function writeState(state: State) {
     }
   }
 }
+
+// 客户端直连硅基流动：GitHub Pages 没有服务端，AI 请求必须从浏览器发起
+// API Key 存在用户设备的 IndexedDB 里，不在源码或构建产物中
+type AIAction =
+  | { action: "generate"; period: unknown; metrics: unknown }
+  | { action: "follow_up"; report: unknown; question: string };
+
+async function callSiliconFlow(
+  apiKey: string,
+  payload: AIAction,
+): Promise<{ content: string; generatedAt: string }> {
+  if (!apiKey.trim()) {
+    throw new Error("请先在“我的”里填写硅基流动 API Key");
+  }
+  const userContent =
+    payload.action === "generate"
+      ? JSON.stringify({ period: payload.period, metrics: payload.metrics })
+      : JSON.stringify({ report: payload.report, question: payload.question });
+  const response = await fetch(SILICONFLOW_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey.trim()}`,
+    },
+    body: JSON.stringify({
+      model: SILICONFLOW_MODEL,
+      temperature: 0.35,
+      max_tokens: 900,
+      messages: [
+        { role: "system", content: AI_SYSTEM_PROMPT },
+        { role: "user", content: userContent },
+      ],
+    }),
+    signal: AbortSignal.timeout(25_000),
+  });
+  const data = (await response.json().catch(() => null)) as {
+    choices?: { message?: { content?: string } }[];
+    error?: string | { message?: string };
+  } | null;
+  if (!response.ok) {
+    if (response.status === 401)
+      throw new Error("API Key 无效，请检查硅基流动令牌");
+    const providerError =
+      typeof data?.error === "string" ? data.error : data?.error?.message;
+    throw new Error(providerError || "模型服务暂时不可用");
+  }
+  return {
+    content: data?.choices?.[0]?.message?.content || "这次没有得到有效周报。",
+    generatedAt: new Date().toISOString(),
+  };
+}
+
 function periodFor(date = new Date()) {
   const end = new Date(date);
   const daysSinceFriday = (end.getDay() + 2) % 7;
@@ -650,13 +712,11 @@ export default function Home() {
       };
     });
     try {
-      const response = await fetch("/api/coach/weekly", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "generate", period, metrics }),
+      const payload = await callSiliconFlow(state.apiKey || "", {
+        action: "generate",
+        period,
+        metrics,
       });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "周报生成失败");
       const report: Report = {
         id: `${period.start}:${period.end}`,
         start: period.start,
@@ -694,23 +754,17 @@ export default function Home() {
     }
     setReportLoading(true);
     try {
-      const response = await fetch("/api/coach/weekly", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "follow_up",
-          report: {
-            start: current.start,
-            end: current.end,
-            content: current.content,
-            metrics: current.metrics,
-            followUps: current.followUps.slice(-MAX_REPORT_FOLLOW_UPS),
-          },
-          question: trimmedQuestion,
-        }),
+      const payload = await callSiliconFlow(state.apiKey || "", {
+        action: "follow_up",
+        report: {
+          start: current.start,
+          end: current.end,
+          content: current.content,
+          metrics: current.metrics,
+          followUps: current.followUps.slice(-MAX_REPORT_FOLLOW_UPS),
+        },
+        question: trimmedQuestion,
       });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "追问失败");
       setState((value) => ({
         ...value,
         reports: value.reports.map((item) =>
@@ -761,7 +815,7 @@ export default function Home() {
             <span>朝夕 · {state.profile.name}</span>
           </div>
           {platformReady && !native && (
-            <a className="download-link" href="/daily-coach.apk" download>
+            <a className="download-link" href="daily-coach.apk" download>
               获取安卓版
             </a>
           )}
@@ -1228,6 +1282,32 @@ export default function Home() {
                 <span>周报份数</span>
               </div>
             </div>
+            <div className="api-key-block">
+              <p className="eyebrow">AI 周报</p>
+              <p className="api-key-hint">
+                部署在 GitHub Pages 上时没有服务端，AI 周报需要从你的浏览器直接请求硅基流动。
+                请填写你自己的 API Key，它只保存在这台设备上。
+              </p>
+              <input
+                className="api-key-input"
+                type="password"
+                placeholder="sk-...（硅基流动 API Key）"
+                value={state.apiKey || ""}
+                autoComplete="off"
+                spellCheck={false}
+                onChange={(event) =>
+                  setState((current) => ({
+                    ...current,
+                    apiKey: event.target.value,
+                  }))
+                }
+              />
+              <p className="api-key-status">
+                {state.apiKey
+                  ? "已配置 API Key，可以生成周报。"
+                  : "尚未配置 API Key，周报功能暂不可用。"}
+              </p>
+            </div>
             <button className="wide-button" onClick={downloadData}>
               导出我的数据
             </button>
@@ -1267,7 +1347,7 @@ export default function Home() {
           <span className="install-kicker">ANDROID · MVP</span>
           <h2>把朝夕，装进手机。</h2>
           <p>安装后拥有完整的打卡和提醒体验。</p>
-          <a className="apk-button" href="/daily-coach.apk" download>
+          <a className="apk-button" href="daily-coach.apk" download>
             下载 Android 安装包<span>APK · 当前测试版</span>
           </a>
           <ol>

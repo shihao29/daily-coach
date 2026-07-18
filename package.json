@@ -8,10 +8,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:edgeone": "next build",
     "start": "next start",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
-    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern .edgeone --ignore-pattern .vinext --ignore-pattern android/app/build --ignore-pattern android/app/src/main/assets/public",
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern .edgeone --ignore-pattern .vinext --ignore-pattern out --ignore-pattern android/app/build --ignore-pattern android/app/src/main/assets/public",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
