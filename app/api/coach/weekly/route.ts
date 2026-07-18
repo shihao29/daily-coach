@@ -70,13 +70,21 @@ export async function POST(request: Request) {
     );
     const data = (await response.json()) as {
       choices?: { message?: { content?: string } }[];
-      error?: { message?: string };
+      error?: string | { message?: string };
     };
-    if (!response.ok)
+    if (!response.ok) {
+      if (response.status === 401)
+        return NextResponse.json(
+          { error: "AI 服务密钥无效，请更新服务端配置" },
+          { status: 503 },
+        );
+      const providerError =
+        typeof data.error === "string" ? data.error : data.error?.message;
       return NextResponse.json(
-        { error: data.error?.message || "模型服务暂时不可用" },
+        { error: providerError || "模型服务暂时不可用" },
         { status: response.status >= 500 ? 502 : response.status },
       );
+    }
     return NextResponse.json({
       content: data.choices?.[0]?.message?.content || "这次没有得到有效周报。",
       generatedAt: new Date().toISOString(),
