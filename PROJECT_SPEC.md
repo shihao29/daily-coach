@@ -47,15 +47,15 @@
 
 ## 6. 网页、托管与 APK
 
-- 正式托管使用 EdgeOne Pages 免费方案，不购买腾讯云付费套餐。
-- GitHub 用于源代码备份和版本管理；纯 GitHub Pages 不能安全保存 AI 密钥，因此不作为 AI 版本的正式后端。
+- 正式托管使用 Cloudflare Pages 免费方案，不购买付费套餐。
+- GitHub 用于源代码备份和版本管理；纯 GitHub Pages 在中国大陆晚上高峰期访问不稳定，不作为正式托管。
 - 正式网站需要尽可能让中国大陆用户无需代理即可访问。
-- APK 是 Capacitor 原生外壳，加载正式 EdgeOne 网址；APK 内不能出现“获取安卓版”、下载 APK、安装步骤等网页专属内容。
+- APK 是 Capacitor 原生外壳，加载正式 Cloudflare 网址；APK 内不能出现“获取安卓版”、下载 APK、安装步骤等网页专属内容。
 - 网页可以保留 APK 下载入口与安装说明。
 
 ## 7. 交付验收
 
-- Lint、应用测试、EdgeOne 的 Next.js 构建均通过。
+- Lint、应用测试、Cloudflare Pages 的 Next.js 构建均通过。
 - 在移动端尺寸完成至少两轮体验检查，覆盖添加、编辑、头像、左滑、归档、打卡、日历、导入导出、周报限额。
 - 线上验证首页、AI 接口和 APK 下载均可用。
 - 检查最终 APK 指向正式网址，且任何构建产物都不包含 AI Key。

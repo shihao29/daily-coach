@@ -28,7 +28,7 @@ npm run dev
 ```bash
 npm run lint
 npm test
-npm run build:edgeone
+npm run build
 ```
 
 ## AI 配置
@@ -42,7 +42,13 @@ npm run build:edgeone
 
 ## 发布与 Android
 
-网页和 `/api/coach/weekly` 部署到 EdgeOne Pages 免费方案。完成正式网址部署后，更新 `capacitor.config.ts` 的 `server.url`，再运行：
+网页部署到 Cloudflare Pages 免费方案。在 Cloudflare Pages 控制台连接 GitHub 仓库，配置如下：
+
+- 构建命令：`npm run build`
+- 输出目录：`out`
+- 环境变量：按需添加 `SILICONFLOW_API_KEY` 等
+
+每次推送到 `main` 分支会自动触发部署。部署成功后拿到 `https://<project>.pages.dev` 正式网址，更新 `capacitor.config.ts` 的 `server.url`，再运行：
 
 ```bash
 npx cap sync android

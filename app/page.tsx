@@ -337,8 +337,35 @@ export default function Home() {
   const [swipedId, setSwipedId] = useState<number | null>(null);
   const touchX = useRef(0);
   const touchY = useRef(0);
-  const today = dateKey();
+  const [today, setToday] = useState(dateKey());
   const habits = state.habits.filter((habit) => !habit.archived);
+
+  // 每天 01:00 触发一次“跨日刷新”，让 today 切到新一天，今天归零、昨天进入历史
+  // 后台时 webview 定时器可能被挂起，所以回到前台时再校准一次
+  useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+    const scheduleRefresh = () => {
+      const now = new Date();
+      const next = new Date(now);
+      next.setHours(1, 0, 0, 0);
+      if (next.getTime() <= now.getTime()) {
+        next.setDate(next.getDate() + 1);
+      }
+      timeoutId = setTimeout(() => {
+        setToday(dateKey());
+        scheduleRefresh();
+      }, next.getTime() - now.getTime());
+    };
+    scheduleRefresh();
+    const handleVisibility = () => {
+      if (!document.hidden) setToday(dateKey());
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, []);
 
   useEffect(() => {
     readState().then((next) => {
