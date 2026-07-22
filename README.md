@@ -46,7 +46,7 @@ npm run build
 - `download-site/`：下载页源文件。
 - `public/daily-coach.apk`：当前正式 APK。
 
-离线 APK 使用固定应用编号 `com.shihao29.zhaoxi`。首次迁移时它会以“朝夕·离线”显示，可与旧版并存。构建前需要保留当前 Windows 用户目录下的签名文件和加密凭据：
+离线 APK 使用固定应用编号 `com.shihao29.zhaoxi`。首次迁移时它会以“朝夕·离线版”显示，可与旧版并存。构建前需要保留当前 Windows 用户目录下的签名文件和加密凭据：
 
 - `%USERPROFILE%\.android\zhaoxi-release.jks`
 - `%USERPROFILE%\.android\zhaoxi-release-credential.xml`
@@ -60,7 +60,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-offline-apk.
 脚本会构建静态页面、同步 Android、生成正式签名 APK，并刷新：
 
 - `public/daily-coach.apk`
-- `download-site/daily-coach.apk`
+- `download-site/zhaoxi-offline-2.0.1.apk`
 - `release/daily-coach-download-site.zip`
 
 未来更新必须保持应用编号和签名不变，并提高 `android/app/build.gradle` 中的 `versionCode`。

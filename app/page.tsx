@@ -1385,8 +1385,8 @@ export default function Home() {
             </div>
             {native && (
               <div className="migration-note">
-                <strong>第一次使用离线版？</strong>
-                <span>先在旧版导出数据，再在这里导入；确认记录完整后再删除旧版。</span>
+                <strong>朝夕·离线版 2.0.1</strong>
+                <span>核心功能无需网络。先在旧版导出数据，再在这里导入；确认记录完整后再删除旧版。</span>
               </div>
             )}
             <button

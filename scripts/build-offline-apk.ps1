@@ -5,10 +5,10 @@ $keyStore = Join-Path $env:USERPROFILE ".android\zhaoxi-release.jks"
 $credentialFile = Join-Path $env:USERPROFILE ".android\zhaoxi-release-credential.xml"
 
 if (-not (Test-Path -LiteralPath $keyStore)) {
-  throw "缺少朝夕签名文件：$keyStore"
+  throw "Missing Android signing file: $keyStore"
 }
 if (-not (Test-Path -LiteralPath $credentialFile)) {
-  throw "缺少朝夕签名凭据：$credentialFile"
+  throw "Missing Android signing credentials: $credentialFile"
 }
 
 $credential = Import-Clixml -LiteralPath $credentialFile
@@ -32,7 +32,7 @@ try {
   )
   $jdkCandidates = @($jdkCandidates | Where-Object { $_ -and (Test-Path -LiteralPath (Join-Path $_ "bin\java.exe")) })
   if (-not $jdkCandidates) {
-    throw "需要 JDK 21 才能构建 Android APK"
+    throw "JDK 21 is required to build the Android APK"
   }
   $env:JAVA_HOME = $jdkCandidates[0]
   $env:PATH = (Join-Path $env:JAVA_HOME "bin") + ";" + $previousPath
@@ -52,28 +52,32 @@ try {
   Push-Location $projectRoot
   $locationPushed = $true
   & npm.cmd run build
-  if ($LASTEXITCODE -ne 0) { throw "网页构建失败" }
+  if ($LASTEXITCODE -ne 0) { throw "Web build failed" }
 
   & npx.cmd cap sync android
-  if ($LASTEXITCODE -ne 0) { throw "Android 同步失败" }
+  if ($LASTEXITCODE -ne 0) { throw "Android sync failed" }
 
   Push-Location (Join-Path $projectRoot "android")
   try {
     & .\gradlew.bat clean assembleRelease
-    if ($LASTEXITCODE -ne 0) { throw "APK 构建失败" }
+    if ($LASTEXITCODE -ne 0) { throw "APK build failed" }
   } finally {
     Pop-Location
   }
 
   $builtApk = Join-Path $projectRoot "android\app\build\outputs\apk\release\app-release.apk"
-  $siteApk = Join-Path $projectRoot "download-site\daily-coach.apk"
+  $siteApk = Join-Path $projectRoot "download-site\zhaoxi-offline-2.0.1.apk"
+  $legacySiteApk = Join-Path $projectRoot "download-site\daily-coach.apk"
+  if (Test-Path -LiteralPath $legacySiteApk) {
+    Remove-Item -LiteralPath $legacySiteApk -Force
+  }
   Copy-Item -LiteralPath $builtApk -Destination $publicApk -Force
   Copy-Item -LiteralPath $builtApk -Destination $siteApk -Force
 
   $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $builtApk).Hash
   $releaseInfo = [ordered]@{
-    app = "朝夕·离线"
-    version = "2.0.0"
+    app = "Zhaoxi Offline"
+    version = "2.0.1"
     package = "com.shihao29.zhaoxi"
     sha256 = $hash
     builtAt = (Get-Date).ToUniversalTime().ToString("o")

@@ -13,19 +13,19 @@
 - APK：`C:\Users\han\Documents\New project\public\daily-coach.apk`
 - EdgeOne 手动上传包：`C:\Users\han\Documents\New project\release\daily-coach-download-site.zip`
 
-下载页打开后会自动请求 `daily-coach.apk`，同时保留手动下载按钮。2026-07-22 已从公网重新下载 APK，并确认线上文件与本地文件 SHA-256 完全一致。
+下载页打开后会自动请求当前唯一版本文件 `zhaoxi-offline-2.0.1.apk`，同时保留手动下载按钮。同名旧文件容易被安卓下载器或用户误选，因此后续每次发布都应继续使用带版本号的新文件名。
 
 ## 2. APK 信息
 
-- 应用显示名：`朝夕·离线`
+- 应用显示名：`朝夕·离线版`
 - 应用编号：`com.shihao29.zhaoxi`
-- `versionName`：`2.0.0`
-- `versionCode`：`1`
-- SHA-256：`DEF33BB32B893B686AF056B8D219561970623C48DEB95B72250E0B43CD7B4A8A`
+- `versionName`：`2.0.1`
+- `versionCode`：`2`
+- SHA-256：`B5CCFF636BA72F2F86CFEDB9FA66FBD0C5E82DE2A96E8C23495B8D03BE09F964`
 - 最低 Android：API 24
 - 目标 Android：API 36
 
-这一版故意显示为“朝夕·离线”，目的是让它能与旧的“朝夕”并存完成首次数据迁移。确认旧数据导入成功并删除旧版后，后续覆盖升级可以只修改显示名，不得修改应用编号。
+这一版故意显示为“朝夕·离线版”，目的是让它与旧的“朝夕”明显区分并同时安装，完成首次数据迁移。确认旧数据导入成功并删除旧版后，后续覆盖升级可以只修改显示名，不得修改应用编号。
 
 APK 已验证：
 
@@ -47,7 +47,7 @@ APK 已验证：
 1. 打开旧版“朝夕”。
 2. 进入“我的”，点击“导出我的数据”。
 3. 将 JSON 文件保存到手机文件、微信文件传输助手或其他安全位置。
-4. 打开下载页安装“朝夕·离线”。
+4. 打开下载页，认准文件 `zhaoxi-offline-2.0.1.apk`，安装“朝夕·离线版”。
 5. 进入“我的”，点击“导入备份数据”。
 6. 核对累计项目、历史打卡、日历明细和历史周报。
 7. 确认无误后再卸载旧版。
@@ -95,7 +95,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-offline-apk.
 3. 运行 Capacitor Android 同步。
 4. 使用固定签名生成 Release APK。
 5. 更新 `public/daily-coach.apk`。
-6. 更新 `download-site/daily-coach.apk` 和 `release.json`。
+6. 使用带版本号的新文件名更新 `download-site/` 中的 APK，并更新页面链接和 `release.json`。
 7. 生成 `release/daily-coach-download-site.zip`。
 
 常规检查：
@@ -113,7 +113,7 @@ npm test
 下载页源文件：
 
 - `download-site/index.html`
-- 构建生成的 `download-site/daily-coach.apk`
+- 构建生成的 `download-site/zhaoxi-offline-2.0.1.apk`
 - 构建生成的 `download-site/release.json`
 
 下载仓库当前直接从 `main` 分支根目录发布。每次重建 APK 后，需要把上述三个文件同步到 `shihao29/daily-coach-download` 并推送。
@@ -154,7 +154,7 @@ EdgeOne 上传成功并验证后，可以把它作为中国大陆优先下载地
 
 当前电脑没有连接安卓手机，也没有安装 Android 模拟器，因此以下验收必须在用户手机上完成：
 
-1. 下载和安装“朝夕·离线”。
+1. 下载 `zhaoxi-offline-2.0.1.apk`，确认安装后的名称是“朝夕·离线版”。
 2. 开启飞行模式，确认应用仍能启动并切换四个底部导航。
 3. 新增项目、打卡、关闭再打开，确认数据仍在。
 4. 导出备份，确认系统分享面板可以保存 JSON。

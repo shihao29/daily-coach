@@ -43,7 +43,7 @@ next-env.d.ts
 /tsconfig.tsbuildinfo
 
 # generated Android/download release artifacts
-/download-site/daily-coach.apk
+/download-site/*.apk
 /download-site/release.json
 /release/
 
