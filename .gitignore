@@ -42,6 +42,11 @@ next-env.d.ts
 /work/
 /tsconfig.tsbuildinfo
 
+# generated Android/download release artifacts
+/download-site/daily-coach.apk
+/download-site/release.json
+/release/
+
 # Tencent Cloud EdgeOne
 .env
 .edgeone/*

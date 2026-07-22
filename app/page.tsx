@@ -43,9 +43,21 @@ type State = {
   profile: { name: string };
   apiKey?: string;
 };
+type BackupEnvelope = {
+  format: "zhaoxi-backup";
+  version: 1;
+  exportedAt: string;
+  data: Omit<State, "apiKey">;
+};
+
+function backupData(value: State | BackupEnvelope): Partial<State> {
+  if ("data" in value && value.format === "zhaoxi-backup") {
+    return value.data;
+  }
+  return value as State;
+}
 
 // 客户端直连硅基流动相关常量
-// 部署到 GitHub Pages 后没有服务端，AI 调用必须从浏览器发起
 const SILICONFLOW_ENDPOINT = "https://api.siliconflow.com/v1/chat/completions";
 const SILICONFLOW_MODEL = "deepseek-ai/DeepSeek-V4-Pro";
 const AI_SYSTEM_PROMPT = `你是“朝夕”的轻量周报分析员。你只能分析用户提供的客观打卡数据，不能进行健康诊断、医疗建议或泛用聊天。不要编造任何数字；如果数据不足就明确说不足。daily 中 active=false 的日期表示项目当时尚未生效，不得计入完成率。用简洁、温和但直接的中文回答，输出四段：本周亮点、需要注意、你可能忽略的规律、下周建议。每个判断尽量引用输入中的项目和数字。追问也只能围绕这份周报和对应数据回答。`;
@@ -57,6 +69,7 @@ const LEGACY_LOGS = "daily-coach:logs:v1";
 const FALLBACK_STATE = "daily-coach:state:v2";
 const MAX_REPORT_GENERATIONS = 2;
 const MAX_REPORT_FOLLOW_UPS = 5;
+const ANDROID_BUILD = process.env.NEXT_PUBLIC_APP_TARGET === "android";
 const DEFAULT_STATE: State = {
   habits: [
     {
@@ -221,7 +234,6 @@ async function writeState(state: State) {
   }
 }
 
-// 客户端直连硅基流动：GitHub Pages 没有服务端，AI 请求必须从浏览器发起
 // API Key 存在用户设备的 IndexedDB 里，不在源码或构建产物中
 type AIAction =
   | { action: "generate"; period: unknown; metrics: unknown }
@@ -332,8 +344,7 @@ export default function Home() {
   const [reportLoading, setReportLoading] = useState(false);
   const [question, setQuestion] = useState("");
   const [showHistory, setShowHistory] = useState(false);
-  const [native, setNative] = useState(false);
-  const [platformReady, setPlatformReady] = useState(false);
+  const [native, setNative] = useState(ANDROID_BUILD);
   const [swipedId, setSwipedId] = useState<number | null>(null);
   const touchX = useRef(0);
   const touchY = useRef(0);
@@ -372,10 +383,10 @@ export default function Home() {
       setState(next);
       setHydrated(true);
     });
+    if (ANDROID_BUILD) return;
     import("@capacitor/core")
       .then(({ Capacitor }) => setNative(Capacitor.isNativePlatform()))
-      .catch(() => undefined)
-      .finally(() => setPlatformReady(true));
+      .catch(() => undefined);
   }, []);
   useEffect(() => {
     if (!hydrated || !native) return;
@@ -617,16 +628,55 @@ export default function Home() {
       notify("提醒设置失败，请检查通知权限后重试");
     }
   }
-  function downloadData() {
-    const blob = new Blob([JSON.stringify(state, null, 2)], {
-      type: "application/json",
-    });
+  async function downloadData() {
+    const safeState: Omit<State, "apiKey"> = {
+      habits: state.habits,
+      logs: state.logs,
+      reports: state.reports,
+      profile: state.profile,
+    };
+    const backup: BackupEnvelope = {
+      format: "zhaoxi-backup",
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      data: safeState,
+    };
+    const fileName = `朝夕备份-${today}.json`;
+    const json = JSON.stringify(backup, null, 2);
+
+    if (native) {
+      try {
+        const [{ Filesystem, Directory, Encoding }, { Share }] =
+          await Promise.all([
+            import("@capacitor/filesystem"),
+            import("@capacitor/share"),
+          ]);
+        const file = await Filesystem.writeFile({
+          path: fileName,
+          data: json,
+          directory: Directory.Cache,
+          encoding: Encoding.UTF8,
+        });
+        await Share.share({
+          title: "朝夕数据备份",
+          text: "请把这份备份保存到安全的位置。",
+          url: file.uri,
+          dialogTitle: "保存或分享朝夕备份",
+        });
+        notify("备份已生成，请选择保存位置");
+        return;
+      } catch {
+        notify("系统分享未打开，已改用文件下载");
+      }
+    }
+
+    const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `朝夕备份-${today}.json`;
+    anchor.download = fileName;
     anchor.click();
-    URL.revokeObjectURL(url);
+    window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
   }
   async function importData(file?: File) {
     if (!file) return;
@@ -635,12 +685,17 @@ export default function Home() {
       return;
     }
     try {
-      const parsed = JSON.parse(await file.text()) as State;
-      if (!Array.isArray(parsed.habits) || typeof parsed.logs !== "object")
+      const parsed = JSON.parse(await file.text()) as State | BackupEnvelope;
+      const candidate = backupData(parsed);
+      if (
+        !Array.isArray(candidate.habits) ||
+        typeof candidate.logs !== "object"
+      )
         throw new Error();
-      const imported = normalizeState(parsed);
+      const imported = normalizeState(candidate);
       setState({
         ...imported,
+        apiKey: state.apiKey || "",
         habits: imported.habits.map((habit) => ({
           ...habit,
           reminderEnabled: false,
@@ -832,20 +887,13 @@ export default function Home() {
   ).getDate();
 
   return (
-    <main
-      className={`site-shell ${platformReady && !native ? "with-install" : ""}`}
-    >
+    <main className="site-shell">
       <section className="app-panel" aria-label="朝夕应用">
         <header className="topbar">
           <div className="brand">
             <span className="brand-mark">朝</span>
             <span>朝夕 · {state.profile.name}</span>
           </div>
-          {platformReady && !native && (
-            <a className="download-link" href="daily-coach.apk" download>
-              获取安卓版
-            </a>
-          )}
         </header>
         {tab === "checkin" && (
           <section className="screen">
@@ -1312,7 +1360,7 @@ export default function Home() {
             <div className="api-key-block">
               <p className="eyebrow">AI 周报</p>
               <p className="api-key-hint">
-                部署在 GitHub Pages 上时没有服务端，AI 周报需要从你的浏览器直接请求硅基流动。
+                AI 周报需要联网请求硅基流动，打卡、日历和历史数据不受影响。
                 请填写你自己的 API Key，它只保存在这台设备上。
               </p>
               <input
@@ -1335,7 +1383,16 @@ export default function Home() {
                   : "尚未配置 API Key，周报功能暂不可用。"}
               </p>
             </div>
-            <button className="wide-button" onClick={downloadData}>
+            {native && (
+              <div className="migration-note">
+                <strong>第一次使用离线版？</strong>
+                <span>先在旧版导出数据，再在这里导入；确认记录完整后再删除旧版。</span>
+              </div>
+            )}
+            <button
+              className="wide-button"
+              onClick={() => void downloadData()}
+            >
               导出我的数据
             </button>
             <label className="wide-button secondary-button">
@@ -1369,27 +1426,6 @@ export default function Home() {
           )}
         </nav>
       </section>
-      {platformReady && !native && (
-        <aside className="install-panel">
-          <span className="install-kicker">ANDROID · MVP</span>
-          <h2>把朝夕，装进手机。</h2>
-          <p>安装后拥有完整的打卡和提醒体验。</p>
-          <a className="apk-button" href="daily-coach.apk" download>
-            下载 Android 安装包<span>APK · 当前测试版</span>
-          </a>
-          <ol>
-            <li>
-              <span>01</span>用安卓手机打开这个网站
-            </li>
-            <li>
-              <span>02</span>下载 APK 并允许本次安装
-            </li>
-            <li>
-              <span>03</span>打开朝夕，开启通知权限
-            </li>
-          </ol>
-        </aside>
-      )}
       {(showAdd || editing) && (
         <div
           className="modal-backdrop"

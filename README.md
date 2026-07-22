@@ -8,7 +8,7 @@
 - 日历：按月查看每日完成率和当天明细，历史归档项目仍保留记录。
 - 周报：分析最近一个完整的周六至周五周期，以及此前四周的汇总趋势。
 - 我的：本地统计、JSON 数据导出、导入与清空。
-- Android：Capacitor 外壳加载正式网站，原生版本隐藏网页里的 APK 下载说明。
+- Android：完整页面内置在 Capacitor APK 中，断网也能启动、打卡和查看日历。
 
 所有项目和打卡数据默认只保存在当前设备的 IndexedDB 中。调用 AI 时只发送生成周报需要的紧凑统计，不发送完整本地数据库。
 
@@ -33,27 +33,34 @@ npm run build
 
 ## AI 配置
 
-服务端环境变量：
+当前 AI 周报为可选联网功能，用户在自己的设备上填写硅基流动 API Key。核心打卡功能不依赖它。数据备份会主动排除 API Key。
 
-- `SILICONFLOW_API_KEY`：硅基流动访问令牌，只能配置在托管平台服务端。
-- `SILICONFLOW_MODEL`：默认 `deepseek-ai/DeepSeek-V4-Pro`。
-
-不要把访问令牌写入源代码、Git、网页或 APK。
+不要把访问令牌写入源代码、Git、网页、下载页或 APK 构建产物。
 
 ## 发布与 Android
 
-网页部署到 Cloudflare Pages 免费方案。在 Cloudflare Pages 控制台连接 GitHub 仓库，配置如下：
+正式下载页和应用主体完全分离：
 
-- 构建命令：`npm run build`
-- 输出目录：`out`
-- 环境变量：按需添加 `SILICONFLOW_API_KEY` 等
+- 下载地址：`https://shihao29.github.io/daily-coach-download/`
+- 下载页仓库：`https://github.com/shihao29/daily-coach-download`
+- `download-site/`：下载页源文件。
+- `public/daily-coach.apk`：当前正式 APK。
 
-每次推送到 `main` 分支会自动触发部署。部署成功后拿到 `https://<project>.pages.dev` 正式网址，更新 `capacitor.config.ts` 的 `server.url`，再运行：
+离线 APK 使用固定应用编号 `com.shihao29.zhaoxi`。首次迁移时它会以“朝夕·离线”显示，可与旧版并存。构建前需要保留当前 Windows 用户目录下的签名文件和加密凭据：
+
+- `%USERPROFILE%\.android\zhaoxi-release.jks`
+- `%USERPROFILE%\.android\zhaoxi-release-credential.xml`
+
+不要把这两个文件提交到 Git。完整构建使用：
 
 ```bash
-npx cap sync android
-cd android
-./gradlew assembleDebug
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-offline-apk.ps1
 ```
 
-生成的测试 APK 位于 `android/app/build/outputs/apk/debug/app-debug.apk`。正式对外下载文件为 `public/daily-coach.apk`。
+脚本会构建静态页面、同步 Android、生成正式签名 APK，并刷新：
+
+- `public/daily-coach.apk`
+- `download-site/daily-coach.apk`
+- `release/daily-coach-download-site.zip`
+
+未来更新必须保持应用编号和签名不变，并提高 `android/app/build.gradle` 中的 `versionCode`。

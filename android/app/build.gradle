@@ -1,14 +1,20 @@
 apply plugin: 'com.android.application'
 
+def zhaoxiKeystoreFile = System.getenv("ZHAOXI_KEYSTORE_FILE")
+def zhaoxiKeystorePassword = System.getenv("ZHAOXI_KEYSTORE_PASSWORD")
+def zhaoxiKeyAlias = System.getenv("ZHAOXI_KEY_ALIAS")
+def zhaoxiKeyPassword = System.getenv("ZHAOXI_KEY_PASSWORD")
+def zhaoxiSigningReady = zhaoxiKeystoreFile && zhaoxiKeystorePassword && zhaoxiKeyAlias && zhaoxiKeyPassword
+
 android {
-    namespace = "com.dailycoach.app"
+    namespace = "com.shihao29.zhaoxi"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.dailycoach.app"
+        applicationId "com.shihao29.zhaoxi"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName "2.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,8 +22,22 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            if (zhaoxiSigningReady) {
+                storeFile file(zhaoxiKeystoreFile)
+                storePassword zhaoxiKeystorePassword
+                keyAlias zhaoxiKeyAlias
+                keyPassword zhaoxiKeyPassword
+            }
+        }
+    }
     buildTypes {
         release {
+            if (!zhaoxiSigningReady) {
+                throw new GradleException("Release signing environment is not configured")
+            }
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

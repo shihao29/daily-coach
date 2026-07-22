@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">朝夕</string>
-    <string name="title_activity_main">朝夕</string>
-    <string name="package_name">com.dailycoach.app</string>
-    <string name="custom_url_scheme">com.dailycoach.app</string>
+    <string name="app_name">朝夕·离线</string>
+    <string name="title_activity_main">朝夕·离线</string>
+    <string name="package_name">com.shihao29.zhaoxi</string>
+    <string name="custom_url_scheme">com.shihao29.zhaoxi</string>
 </resources>

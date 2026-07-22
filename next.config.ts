@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
-// 部署到 Cloudflare Pages：根路径托管，无需 basePath
-// 中国大陆访问比 github.io 稳定，且不需要自定义域名和备案
+// 应用主体使用静态导出，并由 Capacitor 把 out/ 完整打进离线 APK。
+// 对外下载页位于 download-site/，不再把应用主体作为远程启动页。
 const nextConfig: NextConfig = {
   output: "export",
   trailingSlash: true,

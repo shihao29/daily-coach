@@ -474,6 +474,27 @@ input:focus-visible {
   font-size: 0.72rem;
   line-height: 1.7;
 }
+
+.migration-note {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.85rem;
+  border: 1px solid rgba(168, 117, 79, 0.18);
+  border-radius: 1rem;
+  background: #fbf5e9;
+  padding: 0.95rem 1rem;
+  color: var(--ink);
+}
+
+.migration-note strong {
+  font-size: 0.82rem;
+}
+
+.migration-note span {
+  color: var(--muted);
+  font-size: 0.73rem;
+  line-height: 1.65;
+}
 .api-key-block {
   margin-top: 1.5rem;
   padding: 1rem 1.1rem;

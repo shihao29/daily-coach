@@ -8,7 +8,6 @@ const geist = Geist({
 });
 
 // 静态导出模式下不能用 headers()，metadata 用静态值
-// GitHub Pages 部署后社交分享图走相对路径，由各平台自行解析
 export const metadata: Metadata = {
   title: "朝夕｜你的每日监督教练",
   description: "添加每日小目标、打卡进度并按时提醒。所有数据只保存在你的设备里。",
